@@ -17,4 +17,4 @@ run:
   # # run the command here
   artifacts:
     paths:
-    - *.json
+    - "*.json"
