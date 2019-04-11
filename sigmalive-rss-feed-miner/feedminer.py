@@ -19,7 +19,7 @@ def fetch_news(*,db_path):
 
     rss_content = requests.get(RSS_FEED_URL).text
     parsed_feed = xmltodict.parse(rss_content)
-    # print('[+] Found %d items in RSS feed.' % (len(parsed_feed['rss']['channel']['item'])))
+    print('[+] Found %d items in RSS feed.' % (len(parsed_feed['rss']['channel']['item'])))
     news_item = Query()
     for item in parsed_feed['rss']['channel']['item']:
         if len(db.search(news_item.id == item['id'])) == 0:
@@ -33,5 +33,6 @@ def get_stored_news(*, db_path):
     return TinyDB(db_path).all()
 
 if __name__=='__main__':
-    fetch_news_periodically(db_path="db.json", interval=10)
-    print(get_stored_news(db_path="db.json"))
+    fetch_news(db_path="db.json")
+    print("There are currently %d items in DB" % 
+            len(get_stored_news(db_path="db.json")))

@@ -1,0 +1,20 @@
+image: python:latest
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+before_script:
+  - python -V # Print out python version for debugging
+  - pip install -r requirements
+
+run:
+  script:
+  - python sigmalive-rss-feed-miner/feedminer.py
+  # # an alternative approach is to install and run:
+  # - pip install dist/*
+  # # run the command here
+  # artifacts:
+  #   paths:
+  #   - dist/*.whl
