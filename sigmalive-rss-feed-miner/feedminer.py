@@ -2,6 +2,7 @@
 import logging
 import requests
 import xmltodict
+import time
 
 
 from timeloop import Timeloop
@@ -33,6 +34,6 @@ def get_stored_news(*, db_path):
     return TinyDB(db_path).all()
 
 if __name__=='__main__':
-    fetch_news(db_path="db.json")
-    print("There are currently %d items in DB" % 
-            len(get_stored_news(db_path="db.json")))
+    fetch_news(db_path="news_{}.json".format(int(time.time())))
+    # print("There are currently %d items in DB" % 
+    #         len(get_stored_news(db_path="news.json")))

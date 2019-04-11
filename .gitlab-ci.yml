@@ -15,6 +15,6 @@ run:
   # # an alternative approach is to install and run:
   # - pip install dist/*
   # # run the command here
-  # artifacts:
-  #   paths:
-  #   - dist/*.whl
+  artifacts:
+    paths:
+    - sigmalive-rss-feed-miner/*.json
