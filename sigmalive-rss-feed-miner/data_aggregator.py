@@ -84,6 +84,6 @@ def write_to_csv(news_set, csv_path):
         bar.finish()
             
 check_config_values(CONFIG)
-# download_all_artifacts(CONFIG.EXTRACT_DIR)
+download_all_artifacts(CONFIG.EXTRACT_DIR)
 news_set = read_all_artifacts(CONFIG.EXTRACT_DIR)
 write_to_csv = write_to_csv(news_set, "sigmalive_news.csv")
