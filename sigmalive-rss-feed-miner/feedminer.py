@@ -4,13 +4,9 @@ import requests
 import xmltodict
 import time
 
-
-from timeloop import Timeloop
-from datetime import timedelta
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 
 RSS_FEED_URL = "http://www.sigmalive.com/rss"
-tl = Timeloop()
 logger = logging.getLogger(__name__)
 
 def fetch_news(*,db_path):
@@ -21,14 +17,8 @@ def fetch_news(*,db_path):
     rss_content = requests.get(RSS_FEED_URL).text
     parsed_feed = xmltodict.parse(rss_content)
     print('[+] Found %d items in RSS feed.' % (len(parsed_feed['rss']['channel']['item'])))
-    news_item = Query()
     for item in parsed_feed['rss']['channel']['item']:
-        if len(db.search(news_item.id == item['id'])) == 0:
-            db.insert(item)
-
-def fetch_news_periodically(*,db_path, interval):
-    tl.job(fetch_news(db_path=db_path))
-    tl.start(block=True)
+        db.insert(item)
 
 def get_stored_news(*, db_path):
     return TinyDB(db_path).all()

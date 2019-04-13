@@ -1,0 +1,5 @@
+class CONFIG:
+    PROJECT_ID = "<PROJECT-ID>"
+    GITLAB_URL = "https://gitlab.com/api/v4/"
+    API_KEY = "<ACCESS-TOKEN>"
+    EXTRACT_DIR = "../data"

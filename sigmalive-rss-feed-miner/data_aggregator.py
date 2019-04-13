@@ -2,6 +2,7 @@ import requests, zipfile
 import io
 import json
 import os
+import csv
 
 from progress.bar import Bar
 from utils import *
@@ -24,17 +25,30 @@ class NewsItem(object):
         return "NewsItem:{0}".format(self.id)
 
 def get_finished_jobs():
-    url = (CONFIG.GITLAB_URL+"projects/{0}/jobs?scope[]=success").format(CONFIG.PROJECT_ID)
-    r = requests.get(url, headers={"PRIVATE-TOKEN":CONFIG.API_KEY}) 
-    return  json.loads(r.content)
+    all_jobs = []
+    jobs_in_page = []
+    page = 1
+    while True:
+        url = (CONFIG.GITLAB_URL+"projects/{0}/jobs?scope[]=success&page={1}").format(CONFIG.PROJECT_ID, page)
+        r = requests.get(url, headers={"PRIVATE-TOKEN":CONFIG.API_KEY}) 
+        jobs_in_page = json.loads(r.content)
+        if len(jobs_in_page) == 0: break
+        all_jobs.extend(jobs_in_page)
+        page += 1
+    return  all_jobs
 
 def download_artifact(job_id, extract_dir):
     url = (CONFIG.GITLAB_URL+"projects/{0}/jobs/{1}/artifacts").format(CONFIG.PROJECT_ID, job_id)
     r = requests.get(url, headers={"PRIVATE-TOKEN":CONFIG.API_KEY}, stream=True)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    if not os.path.exists(extract_dir):
-        os.makedirs(extract_dir)
-    z.extractall(extract_dir)
+    try:
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        if not os.path.exists(extract_dir):
+            os.makedirs(extract_dir)
+        z.extractall(extract_dir)
+    except Exception as e:
+        ## Just in case artifacts 
+        pass
+
 
 def download_all_artifacts(extract_id):
     jobs = get_finished_jobs()
@@ -54,7 +68,22 @@ def read_all_artifacts(extract_dir):
                 all_news.add(NewsItem(n))
     return all_news
 
+def write_to_csv(news_set, csv_path):
+    with open(csv_path, 'w') as csv_file:
+        columns = ['id', 'category', 'title', 'link', 'description','pubDate','live','image','image_length','image_type']
+        writer = csv.writer(csv_file)
+        writer.writerow(columns)
+        bar = Bar('Saving news to csv', max=len(news_set))
+        for news_item in news_set:
+            row =  [news_item.data['id'], news_item.data['category'], news_item.data['title'],
+                    news_item.data['link'], news_item.data['description'], news_item.data['pubDate'],
+                    news_item.data['live'], news_item.data['enclosure']['@url'], news_item.data['enclosure']['@length'],
+                    news_item.data['enclosure']['@type']]
+            writer.writerow(row)
+            bar.next()
+        bar.finish()
+            
 check_config_values(CONFIG)
-download_all_artifacts(CONFIG.EXTRACT_DIR)
-print(len(read_all_artifacts(CONFIG.EXTRACT_DIR)))
-
+# download_all_artifacts(CONFIG.EXTRACT_DIR)
+news_set = read_all_artifacts(CONFIG.EXTRACT_DIR)
+write_to_csv = write_to_csv(news_set, "sigmalive_news.csv")
