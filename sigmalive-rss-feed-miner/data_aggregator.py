@@ -75,15 +75,21 @@ def write_to_csv(news_set, csv_path):
         writer.writerow(columns)
         bar = Bar('Saving news to csv', max=len(news_set))
         for news_item in news_set:
-            row =  [news_item.data['id'], news_item.data['category'], news_item.data['title'],
-                    news_item.data['link'], news_item.data['description'], news_item.data['pubDate'],
-                    news_item.data['live'], news_item.data['enclosure']['@url'], news_item.data['enclosure']['@length'],
-                    news_item.data['enclosure']['@type']]
-            writer.writerow(row)
+            try:
+                row =  [news_item.data['id'], news_item.data['category'], news_item.data['title'],
+                        news_item.data['link'], news_item.data['description'], news_item.data['pubDate'],
+                        news_item.data['live'], news_item.data['enclosure']['@url'], news_item.data['enclosure']['@length'],
+                        news_item.data['enclosure']['@type']]
+                writer.writerow(row)
+            except Exception as e:
+                print('An exception occured while processing news item:', e)
+                print('News Item: ', news_item.data)
             bar.next()
         bar.finish()
             
 check_config_values(CONFIG)
 download_all_artifacts(CONFIG.EXTRACT_DIR)
 news_set = read_all_artifacts(CONFIG.EXTRACT_DIR)
+
+print('[+] Number of news mined: {}'.format(len(news_set)))
 write_to_csv = write_to_csv(news_set, "sigmalive_news.csv")
