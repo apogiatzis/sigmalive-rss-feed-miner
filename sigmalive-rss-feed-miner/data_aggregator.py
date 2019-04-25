@@ -82,8 +82,12 @@ def write_to_csv(news_set, csv_path):
                         news_item.data['enclosure']['@type']]
                 writer.writerow(row)
             except Exception as e:
-                print('An exception occured while processing news item:', e)
-                print('News Item: ', news_item.data)
+                ## Enclosure does not exist - i.e. No Image
+                row =  [news_item.data['id'], news_item.data['category'], news_item.data['title'],
+                        news_item.data['link'], news_item.data['description'], news_item.data['pubDate'],
+                        news_item.data['live'], "NULL", "NULL", "NULL"]
+                # print('An exception occured while processing news item:', e)
+                # print('News Item: ', news_item.data)
             bar.next()
         bar.finish()
             
